@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><title>登录|MAC魅可官方网站</title><link href=../message/favicon.ico rel="SHORTCUT ICON"><link rel=stylesheet href=../tools/bootstrap-3.3.7-dist/css/bootstrap.min.css><link rel=stylesheet href=../css/base.css><link rel=stylesheet href=../css/login.css><body><div class=nav2><a href=./hoom.html><img src=../message/logo.gif class=t1></a><ul><li><a class=btn-lg href="./list.html?cat_one_id=食品酒水" role=button>人气口红</a></li><li><a class=btn-lg href="./list.html?cat_one_id=童装玩具" role=button>热卖底妆</a></li><li><a class=btn-lg href="./list.html?cat_one_id=家装建材" role=button>LISA同款</a></li><li><a class=btn-lg href="./list.html?cat_one_id=食品酒水" role=button>全新柔霆唇釉</a></li><li><a class=btn-lg href="./list.html?cat_one_id=奶粉尿裤" role=button>新品推荐</a></li><li><a class=btn-lg href="./list.html?cat_one_id=童装玩具" role=button>全部产品</a></li><li><a class=btn-lg href="./list.html?cat_one_id=其他" role=button>更多</a></li></ul><img src=../message/png1.gif class=png1> <img src=../message/png3.gif class=png2><div class=d name=active><a href=./hoom.html><p>MY M·A·C<br>返回首页</p></a></div><img src=../message/png2.gif name=cart class="png3 btn-lg" role=button></div><div class=login><form class=form-horizontal><div class=form-group><div class=col-sm-10><input name=name type=text id=username placeholder=*用户名></div></div><div class=form-group><div class=col-sm-10><input name=pwd type=password id=password placeholder=*密码></div></div><div class=form-group><div class="col-sm-offset-2 col-sm-10"><button type=submit>登录</button></div></div></form></div><img src=../message/tu15.gif class=aaa><script src=../tools/jquery.min.js></script><script src=../js/cookie.js></script><script>// from表单 要给form表单 添加 submit 提交事件
+      // 同时要阻止默认事件
+      $('form').submit( function(){
+        // 触发ajax程序 向后端 发送请求 携带 账号密码
+        $.ajax({
+          url: '../server/goods_login.php',
+          data: { userName: $('[name="name"]').val() ,  userPwd: $('[name="pwd"]').val() },
+          dataType: 'json',
+          type: 'post',
+          success: res=>{
+            console.log(res);
+            // 根据 响应结果 执行不同程序
+            if( res.result === 1 ){
+              // 设定cookie 表示已经登录成功了
+              mySetCookie('login' , 1 , 7*24*60*60 , '/' );
+
+
+              let num = 10;
+
+              // 登录成功
+              $('h3').html(`您登录成功,${num}秒后,跳转来时候的页面 <a href="./hoom.html">点击跳转首页面</a>`);
+
+              // 定时器
+              setInterval( function(){
+                // 变量--
+                num--;
+
+                if(num === 0){
+                  // 跳转页面
+                  window.location.href = `${window.location.search.substr(5)}`;
+                  return;
+                }
+
+                $('h3').html(`您登录成功,${num}秒后,跳转来时候的页面 <a href="./hoom.html">点击跳转首页面</a>`);
+              } , 1000 )
+
+
+            }else{
+              // 登录失败
+              window.alert('您输入的账号密码有误');
+            }
+          }
+        })
+
+        // 阻止一切
+        return false;
+      } )
+
+
+
+      // 退出登录
+ $('[name="logout"]').click(function(){
+      // 获取cookie对象
+      const obj = myGetCookie();
+      console.log( obj.login );
+
+      if( obj.login === undefined ){
+        // 证明还没有登录
+        window.alert('您还没有登录,请您先登录');
+      }else{
+        // 设定cookie的时效为负数 就可以删除 cookie
+        mySetCookie( 'login' , 1 , -1 , '/' );  
+        window.alert('您已经退出登录');
+      }
+    })
+
+    // 购物车
+    $('[name="cart"]').click(function(){
+      // 获取 cookie对象
+      const obj = myGetCookie();
+
+      if( obj.login === undefined ){
+        // 还没有登录 先登录
+        if( window.confirm('您还没有登录,点击确定,跳转登录页面') ){
+          window.location.href = './login.html'
+        }
+
+      }else{
+        // 如果已经登录了,跳转购物车页面
+        window.location.href = './cart.html';
+      }
+    })</script></body></head></html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><title>MAC魅可官网商城|购物车</title><link href=../message/favicon.ico rel="SHORTCUT ICON"><link rel=stylesheet href=../tools/bootstrap-3.3.7-dist/css/bootstrap.min.css><link rel=stylesheet href=../css/base.css><link rel=stylesheet href=../css/cart.css></head><body><script src=../tools/jquery.min.js></script><script>// 调用函数 动态生成页面
+    setPage();
+
+    // 给父级标签 添加点击事件 通过事件委托 执行程序
+    $('.container').click(function(e){
+      // 获取 当前 购物车数据
+      const arr = JSON.parse( localStorage.getItem('cart') );
+
+      // 点击的是全选按钮
+      if( e.target.getAttribute('name') === 'all' ){
+        // 点击的是 全选标签 给 所有的 数据中的buy 设定的数值 
+        // 和 当前标签 checked属性值相同
+        arr.forEach( item=>{
+          item.buy = e.target.checked;
+        }) 
+
+      // 点击的是商品的选项按钮
+      }else if( e.target.getAttribute('name') === 'goods' ){
+        // 找 数组中 goods_id 和 点击标签的 goods_id 相同的 对象
+        // 修改 buy 属性 和 当前标签 checked 属性值 相同
+        for( let i = 0 ; i <= arr.length-1 ; i++ ){
+          if( e.target.getAttribute('num') === arr[i].goods_id ){
+            arr[i].buy = e.target.checked;
+            break;
+          }
+        }
+
+      // 点击的是我不要了 按钮
+      }else if( e.target.getAttribute('name') === 'del' ){
+        // 找 数组中 goods_id 和 点击标签的 goods_id 相同的 对象
+        // 从 对应的 索引下标开始 删除一个单元
+        for( let i = 0 ; i <= arr.length-1 ; i++ ){
+          if( e.target.getAttribute('num') === arr[i].goods_id ){
+            arr.splice( i , 1);
+            break;
+          }
+        }
+
+      // 点击的是 - 按钮
+      }else if( e.target.getAttribute('name') === '-' ){
+        // 找 数组中 goods_id 和 点击标签的 goods_id 相同的 对象
+        // 购物数量 num 存储的数据 -1
+        for( let i = 0 ; i <= arr.length-1 ; i++ ){
+          if( e.target.getAttribute('num') === arr[i].goods_id ){
+            arr[i].num--;
+            break;
+          }
+        }
+
+      // 点击的是 + 按钮
+      }else if( e.target.getAttribute('name') === '+' ){
+        // 找 数组中 goods_id 和 点击标签的 goods_id 相同的 对象
+        // 购物数量 num 存储的数据 +1
+        for( let i = 0 ; i <= arr.length-1 ; i++ ){
+          if( e.target.getAttribute('num') === arr[i].goods_id ){
+            arr[i].num++;
+            break;
+          }
+        }
+
+      // 点击的是 - 按钮
+      }
+
+      // 将新的数组设定给 localStorage 
+      localStorage.setItem( 'cart' , JSON.stringify( arr ) );
+      // 调用函数 再次动态渲染生成页面
+      setPage();
+    }) 
+
+
+    // 定义一个函数 动态渲染生成页面
+    function setPage(){
+      // 1, 获取 购物车 数据 转化为对应的数据信息
+      let cartArr = localStorage.getItem('cart');
+
+      // 2, 如果 没有 购物车数据 生成 没有数据信息的页面
+      if( cartArr === null ){
+        $('.container').html('<h1>你还没有购物记录,请您先去购物</h1>');
+
+      // 有 数据 再动态生成页面
+      }else{
+        // 根据购物车数据 信息生成页面
+        cartArr = JSON.parse( cartArr );
+
+        // 如果 数组单元是0 
+        if( cartArr.length === 0 ){
+          $('.container').html('<h1>您购物车中的商品都被老公清空了,请您继续加入新得商品</h1>');
+        }else{
+          // 有数组数据 而且不是 空数组 动态生成页面
+
+          // 定义变量
+          let bool = true;
+          let type = 0;
+          let number = 0;
+          let money = 0;
+
+          // 起始部分
+          let str = `
+          <div class="panel panel-info ">
+            <div class="panel-body bg-info">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" value="" name="all">全选
+                </label>
+              </div>
+            </div>
+            <div class="panel-footer">
+              <ul class="cart-list">
+          `;
+
+          // 中间的部分是 动态生成的li内容
+          cartArr.forEach(item=>{
+            if( item.buy === false ){
+              bool = false;
+            }else{
+              // 种类 +1
+              type++;
+              // 数量 + 购买数量 也就是 num属性值
+              number += item.num;
+              // 价格 单价*件数
+              money += item.goods_price * item.num;
+            } 
+
+            str += `
+                <li class="cart-item">
+                  <div class="left">
+                    <input type="checkbox" ${item.buy ? 'checked' : ''} name="goods" num="${item.goods_id}">
+                  </div>
+                  <div class="right">
+                    <div class="media">
+                      <div class="media-left">
+                        <a href="#">
+                          <img class="media-object" src="${item.goods_small_logo}" alt="...">
+                        </a>
+                      </div>
+                      <div class="media-body">
+                        <h4 class="media-heading">${item.goods_name}</h4>
+                        <p>
+                          <i class="glyphicon glyphicon-yen"></i>
+                          <span>${item.goods_price}</span>
+                        </p>
+                        <div class="btn-group pull-right" role="group" aria-label="...">
+                          <button name="-" num="${item.goods_id}" type="button" class="btn btn-default" ${ item.num === 1 ? 'disabled' : '' }>-</button>        
+                          <button type="button" class="btn btn-default" disabled>${item.num}</button>
+                          <button  name="+" num="${item.goods_id}"  type="button" class="btn btn-default" ${ item.num === item.goods_number-0 ? 'disabled' : '' }>+</button>
+                        </div>
+                        <button name="del" num="${item.goods_id}" class="del btn btn-danger">我不要了</button>
+
+                      </div>
+                    </div>
+                  </div>
+                </li>          
+            `;
+          })
+          
+          // 结束部分 
+          str += `
+            </ul>
+              <div class="end">
+                <h2>您一共购买了<span>${type}</span>种商品，<span>${number}</span>件商品</h2>
+                <h2>共需要支付 <span>${money.toFixed(2)}</span> 元 </h2>
+              </div>
+          `;
+
+          // 将字符串写入
+          $('.container').html(str);
+
+          // 设定 全选效果
+          $('[name="all"]').prop( 'checked' , bool );
+          
+        }
+      }
+    }</script></body></html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><title>MAC魅可官网商城</title><link href=../message/favicon.ico rel="SHORTCUT ICON"><link rel=stylesheet href=../tools/bootstrap-3.3.7-dist/css/bootstrap.min.css><link rel=stylesheet href=../css/base.css><link rel=stylesheet href=../css/detail.css></head><body><script src=../tools/jquery.min.js></script><script src=../js/tools.js></script><script src=../js/cookie.js></script><script>// 1, 获取 url地址栏参数数据
+  const urlObj = getUrlVal()
+
+  // 2, 发送请求根据响应体数据动态生成页面
+  $.ajax({
+    url:'../server/goods_detail.php',
+    data:{goods_id : urlObj.goods_id},
+    dataType: 'json',
+    type:'post',
+    success: res=>{
+      console.log(res);
+      // 根据数据 动态徐然生成页面
+      let str = `
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">商品详细信息</h3>
+          </div>
+          <div class="panel-body">
+            <div class="media">
+              <div class="media-left">
+                <a href="#">
+                  <img class="media-object" src="${res.goods_small_logo}" alt="...">
+                </a>
+              </div>
+              <div class="media-body">
+                <h4 class="media-heading">${res.goods_name}</h4>
+                <p>
+                  <i class="glyphicon glyphicon-yen"></i>
+                  <span>${res.goods_price}</span>
+                </p>
+                <div class="btn-group" role="group" aria-label="...">
+                  <button type="button" class="btn btn-default">XL</button>
+                  <button type="button" class="btn btn-default">L</button>
+                  <button type="button" class="btn btn-default">M</button>
+                  <button type="button" class="btn btn-default">S</button>
+                  <button type="button" class="btn btn-default">XS</button>
+                </div>
+                <p>
+                  <a href="javascript:;" class="btn btn-warning btn-lg" role="button">立即购买</a>
+                  <a name="cart" href="JavaScript:;" class="btn btn-danger btn-lg" role="button">加入购物车</a>
+                </p>
+              </div>
+            </div>
+            <ul class="nav nav-tabs">
+              <li role="presentation" class="active"><a href="#">商品详细信息</a></li>
+              <li role="presentation"><a href="#">商品参数信息</a></li>
+              <li role="presentation"><a href="#">相关商品</a></li>
+            </ul>
+            <div>
+              ${res.goods_introduce}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 将内容写入
+      $('.container').html(str);
+
+      // 给 加入购物车 添加 点击事件
+      $('[name="cart"]').click(function(){
+        // 1, 获取cookie数据 键值对字符串 --- 对象
+        const cookieObj = myGetCookie()
+        console.log( cookieObj );
+        console.log( cookieObj.login );
+
+        // 2, 执行判断
+        // 如果 cookieObj.login 是 undefined 证明 没有登录
+        if( cookieObj.login === undefined ){
+          // 弹出 确认框  
+          if( window.confirm('您还没有登录,点击,确定,跳转登录页面') ){
+            window.location.href = `./login.html?url=${window.location.href}`;
+          }
+        }else{
+          // 已经登录 先 存储 当前商品信息 再 跳转 购物车页面
+
+        }
+      })
+
+    }
+  })</script></body></html>

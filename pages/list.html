@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang=en><head><meta name=referrer content=never><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><title>MAC魅可官网商城</title><link href=../message/favicon.ico rel="SHORTCUT ICON"><link rel=stylesheet href=../tools/bootstrap-3.3.7-dist/css/bootstrap.min.css><link rel=stylesheet href=../css/base.css><link rel=stylesheet href=../css/list.css><link rel=stylesheet href=../tools/jquery-pagination/pagination.css><style>.breadcrumb{padding-left:6px;padding-right:6px}.m-style{width:700px;margin:30px auto}.m-style .next,.m-style .prev{background:pink;color:#fff}.m-style .active{background:orange}</style></head><body><div class=container></div><script src=../tools/jquery.min.js></script><script src=../tools/jquery-pagination/jquery.pagination.js></script><script src=../js/tools.js></script><script>// 定义数据
+
+    // 当前是第几页,初始显示第一页的内容
+    let page = 1;
+    // 当前每页显示几条数据
+    let line = 8;
+
+    // 调用函数 动态生成页面
+    setPage();
+
+    // 设定一个函数 用于动态生成页面
+    function setPage(){
+      // 1, 获取浏览器地址栏中的数据参数
+      const urlObj = getUrlVal();
+      console.log( urlObj );
+
+      // 2, 发送请求
+      $.ajax({
+        url:'../server/goods_list.php',
+        data:{cat_one_id:urlObj.cat_one_id , page:page , line:line },
+        dataType:'json',
+        type:'get',
+        success:res=>{
+          console.log(res);
+
+          // 根据数据动态渲染生成页面
+          let str = '';
+          res.data.forEach(item=>{
+            str += `
+              <li class="list-item">
+                <div class="panel panel-primary">
+                  <div class="panel-body">
+                    <ol class="breadcrumb">
+                      <li><a href="#">${item.cat_one_id}</a></li>
+                      <li><a href="#">${item.cat_two_id}</a></li>
+                      <li class="active">${item.cat_three_id}</li>
+                    </ol>
+                  </div>
+                  <div class="panel-footer">
+                    <div class="row">
+                      <div class="">
+                        <div class="thumbnail">
+                          <img src="${item.goods_big_logo}" alt="...">
+                          <div class="caption">
+                            <h3>${item.goods_name}</h3>
+                            <p>
+                              <i class="glyphicon glyphicon-yen"></i>
+                              <span>${item.goods_price}</span>
+                            </p>
+                            <p>
+                              <a href="javascript:;" class="btn btn-primary" role="button">查找相似商品</a>
+                              <a href="./detail.html?goods_id=${item.goods_id}" class="btn btn-danger" role="button">查看商品详情</a>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            
+            `
+          })
+
+          // 写入 ul中
+          $('.container ul').html(str);
+
+          // 调用 分页器插件 
+          // 根据 请求结果 设定 分页器 的选项
+          $('.box').pagination({
+            pageCount: res.sumPage ,        // 总页数
+            totalData: res.row,             // 总数据数量
+            current: page,                  // 当前第几页
+            showData: line,                 // 每页数据数量
+            prevContent: '上一页',           // 上一页节点文字内容
+            nextContent: '下一页',           // 下一页节点文字内容
+            prevCls: 'prev',                // 上一页标签 class类名
+            nextCls: 'next',                // 下一页标签 class类名
+            activeCls: 'active',            // 当前选中标签 class类名
+            mode: 'fixed',                  // fixed 固定 页码 按钮 数量
+            count: 4,                       // 页码按钮数量 不算 当前选中按钮
+            coping: true,                   // 开启首页和末页
+            homePage: '首页',               // 首页按钮 文本内容
+            endPage: '末页',                // 首页按钮 文本内容
+            isHide: true,                   // 总页数为 0 或者 1  隐藏控件
+            keepShowPN: false,              // 一直显示 上一页 下一页 固定显示 上一页下一页会一直显示
+            jump: true,                     // 开启 跳转 效果
+            callback: function(res){        // 回调函数
+              // console.log(res);  // 分页插件对象       
+              // console.log(res.getCurrent());  // 点击分页器 想要跳转显示的页数
+              // 将结果 赋值给 page变量
+              page = res.getCurrent();
+              // 根据新的 页数 再次发起请求 获取数据
+              // 再次动态渲染生成新的页面
+              setPage();
+            }      
+          })
+        }
+      })
+    }</script></body></html>

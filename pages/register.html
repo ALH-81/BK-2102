@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><title>注册|MAC魅可官方网站</title><link href=../message/favicon.ico rel="SHORTCUT ICON"><link rel=stylesheet href=../tools/bootstrap-3.3.7-dist/css/bootstrap.min.css><link rel=stylesheet href=../css/base.css><link rel=stylesheet href=../css/register.css><style>#sc{font-size:20px;border:1px solid #999;background-color:#000;color:#fff}</style></head><body><div class=nav2><a href=./hoom.html><img src=../message/logo.gif class=t1></a><ul><li><a class=btn-lg href="./list.html?cat_one_id=食品酒水" role=button>人气口红</a></li><li><a class=btn-lg href="./list.html?cat_one_id=童装玩具" role=button>热卖底妆</a></li><li><a class=btn-lg href="./list.html?cat_one_id=家装建材" role=button>LISA同款</a></li><li><a class=btn-lg href="./list.html?cat_one_id=食品酒水" role=button>全新柔霆唇釉</a></li><li><a class=btn-lg href="./list.html?cat_one_id=奶粉尿裤" role=button>新品推荐</a></li><li><a class=btn-lg href="./list.html?cat_one_id=童装玩具" role=button>全部产品</a></li><li><a class=btn-lg href="./list.html?cat_one_id=其他" role=button>更多</a></li></ul><img src=../message/png1.gif class=png1> <img src=../message/png3.gif class=png2><div class=d name=active><a href=./hoom.html><p>MY M·A·C<br>返回首页</p></a></div><a href=./cart.html><img src=../message/png2.gif name=cart class="png3 btn-lg" role=button></a></div><div class=login><form class=form-horizontal><div class=form-horizontal><div class=form-group><label for=username class="col-sm-2 control-label">用户名</label><div class=col-sm-10><input name=userName type=text class="form-control inputWidth" placeholder=用户名></div></div><div class=form-group><label for=password class="col-sm-2 control-label">密码</label><div class=col-sm-10><input name=userPwd1 type=password class="form-control inputWidth" placeholder=密码></div></div><div class=form-group><label for=password class="col-sm-2 control-label">确认密码</label><div class=col-sm-10><input name=userPwd2 type=password class="form-control inputWidth" placeholder=确认密码></div><div class=form-group><label for=password class="col-sm-2 control-label">验证码</label><div class=col-sm-10><input name=vc type=text class="form-control inputWidth" id=ac placeholder=验证码><br></div></div><div class=form-group><div class="col-sm-offset-2 col-sm-10"><button class="btn btn-default">注册</button></div></div></div></div></form></div><img src=../message/tu13.gif class=aaa><script src=../tools/jquery.min.js></script><script src=../js/tools.js></script><script>// 1, 生成 验证码 写入页面
+      $('#sc').html( setVc() ).click( function(){  $(this).html( setVc() ) } )
+
+      // 2, 失去焦点时 触发程序 
+      // 向 后端 程序 发送请求 验证 用户名是否可用
+      $('[name="userName"]').blur(function(){
+        $.ajax({
+          url: '../server/goods_select.php',
+          data: {userName : $(this).val() },
+          dataType: 'json',
+          type: 'post',
+          success: res=>{
+            // 根据结果动态响应生成页面内容
+            if( res.result === 1 ){
+              // 用户名可以使用
+              $('[name="nameSpan"]').html( '用户名可用' );
+            }else{
+              $('[name="nameSpan"]').html( '用户名重复' );
+            }
+          }
+        })
+
+      })
+
+      // 3, 点击button 触发注册功能
+      $('button').click(function(){
+        // 执行一些验证程序 如果 验证不通过 终止之后程序的执行
+
+        // 密码和确认密码必须一致
+        if( $('[name="userPwd1"]').val() !== $('[name="userPwd2"]').val() ){
+          // 输入提示信息
+          window.alert('两次密码不一致');
+
+          // 刷新验证码
+          $('#sc').html( setVc() );
+
+          // 执行return 终止之后的程序
+          return ;
+        }
+
+        // 输入的验证码 和 标签中的验证码内容 必须一致
+        if( $('[name="vc"]').val().toLowerCase() !== $('#sc').html().toLowerCase() ){
+          window.alert('验证码错误');
+
+          // 刷新验证码
+          $('#sc').html( setVc() );
+
+          return ;
+        }
+
+
+        // 触发ajax 向后端程序发送 ajax请求
+        $.ajax({
+          url: '../server/goods_register.php',
+          data: { userName: $('[name="userName"]').val()  ,  userPwd: $('[name="userPwd1"]').val() , },
+          dataType: 'json',
+          type: 'post',
+          success: res=>{
+            console.log( res );
+            // 根据结果 弹出 提示信息
+            if( res.result === 1 ){
+              // 注册成功
+              window.alert('您注册成功,点击确定跳转首页面');
+              window.location.href = './index.html';
+            }else{
+              // 注册失败
+              window.alert('您注册失败,请换一个用户名再试试');
+              // 刷新验证码
+              $('#sc').html( setVc() );
+            }
+          }
+        
+        })
+      })</script></body></html>
